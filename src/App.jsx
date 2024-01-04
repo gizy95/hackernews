@@ -20,14 +20,28 @@ function App() {
   }
 
 
-  const getStories = () => {
-    setLoading(true);
-    fetch(url + query)
-      .then(response => response.json())
-      .then(data => setStories(data.hits))
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
+  // const getStories = () => {
+  //   setLoading(true);
+  //   fetch(url + query)
+  //     .then(response => response.json())
+  //     .then(data => setStories(data.hits))
+  //     .catch(error => console.log(error))
+  //     .finally(() => setLoading(false));
 
+  // }
+
+
+  const getStories = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(url + query);
+      const data = await response.json();
+      setStories(data.hits);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Call getStories when the component mounts
@@ -49,21 +63,22 @@ function App() {
           <button type="submit">Search</button>
 
         </form>
-        <hr />
-        <ul>
-          {stories.map((story) => (
-            <li key={story.objectID}>
-              <a href={story.url}>{story.title}</a>
-              <div className='para'>
-                <p>Author: {story.author}</p>
-                <p>Comments: {story.num_comments}</p>
-                <p>Points: {story.points}</p>
-                <p>Created At: {story.created_at}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </header>
+      <hr />
+      <ul>
+        {stories.map((story) => (
+          <li key={story.objectID}>
+            <a href={story.url}>{story.title}</a>
+            <div className='para'>
+              <p>Author: {story.author}</p>
+              <p>Comments: {story.num_comments}</p>
+              <p>Points: {story.points}</p>
+              <p>Created At: {story.created_at}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
 
     </div>
   )
