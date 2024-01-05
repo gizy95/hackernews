@@ -5,9 +5,10 @@ import Loader from './Loader';
 function App() {
 
   const url = "http://hn.algolia.com/api/v1/search?query="
-  const [stories, setStories] = useState([]); // state for stories
+  const [stories, setStories] = useState([]); // state forstories
   const [query, setQuery] = useState(''); // state for query
   const [loading, setLoading] = useState(true); // state for loading
+  const [noResults, setNoResults] = useState(false);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -20,29 +21,36 @@ function App() {
   }
 
 
-  // const getStories = () => {
-  //   setLoading(true);
-  //   fetch(url + query)
-  //     .then(response => response.json())
-  //     .then(data => setStories(data.hits))
-  //     .catch(error => console.log(error))
-  //     .finally(() => setLoading(false));
-
-  // }
-
-
-  const getStories = async () => {
+  const getStories = () => {
     setLoading(true);
-    try {
-      const response = await fetch(url + query);
-      const data = await response.json();
-      setStories(data.hits);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+    setNoResults(false);
+    fetch(url + query)
+      .then(response => response.json())
+      .then(data => {
+        if (data.hits.length === 0) {
+          setNoResults(true); // Set noResults to true if no stories were found
+        } else {
+          setStories(data.hits);
+        }
+      })
+      .catch(error => console.log(error))
+      .finally(() => setLoading(false));
+
   }
+
+
+  // const getStories = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await fetch(url + query);
+  //     const data = await response.json();
+  //     setStories(data.hits);
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }
 
   // Call getStories when the component mounts
   useEffect(() => {
@@ -65,19 +73,20 @@ function App() {
         </form>
       </header>
       <hr />
-      <ul>
-        {stories.map((story) => (
-          <li key={story.objectID}>
-            <a href={story.url}>{story.title}</a>
-            <div className='para'>
-              <p>Author: {story.author}</p>
-              <p>Comments: {story.num_comments}</p>
-              <p>Points: {story.points}</p>
-              <p>Created At: {story.created_at}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {noResults ? <p>No results found</p> :
+        <ul>
+          {stories.map((story) => (
+            <li key={story.objectID}>
+              <a href={story.url}>{story.title}</a>
+              <div className='para'>
+                <p>Author: {story.author}</p>
+                <p>Comments: {story.num_comments}</p>
+                <p>Points: {story.points}</p>
+                <p>Created At: {story.created_at}</p>
+              </div>
+            </li>
+          ))}
+        </ul>}
 
 
     </div>
